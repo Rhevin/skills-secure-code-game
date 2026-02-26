@@ -57,7 +57,10 @@ class MyTestCase(TestCase):
         planet = "<script ...>"
         response = self.client.post('/', data={'planet': planet})
         self.assert200(response)
-        self.assertEqual(response.data.decode(), '<h2>Blocked</h2></p>')
+        # With proper escaping, the script tag is safely rendered rather than blocked
+        response_text = response.data.decode()
+        self.assertNotIn('<script ...>', response_text)
+        self.assertIn('&lt;script', response_text)
 
 if __name__ == '__main__':
     unittest.main()
