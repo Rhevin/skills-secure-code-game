@@ -22,9 +22,10 @@ class TaxPayer:
         self.tax_form_attachment = None
 
     def _safe_path(self, path):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        base_dir = os.path.normpath(os.path.dirname(os.path.abspath(__file__)))
         filepath = os.path.normpath(os.path.join(base_dir, path))
-        if base_dir != os.path.commonpath([base_dir, filepath]):
+        common = os.path.commonpath([base_dir, filepath])
+        if common != base_dir or filepath == base_dir:
             return None
         return filepath
 
