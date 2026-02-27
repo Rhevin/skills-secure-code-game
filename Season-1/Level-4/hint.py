@@ -1,10 +1,11 @@
 import sqlite3
 
-# Vulnerable
+# Fixed: use parameterized query instead of string concatenation
 con = sqlite3.connect('users.db')
 user_input = "Mary"
-sql_stmt = "INSERT INTO Users (user) VALUES ('" + user_input + "');"
-con.executescript(sql_stmt)
+con.execute("INSERT INTO Users (user) VALUES (?)", (user_input,))
+con.commit()
+con.close()
 
 """
 The above code is vulnerable to SQL injection because user_input is
