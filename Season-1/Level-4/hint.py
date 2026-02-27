@@ -4,6 +4,8 @@ import sqlite3
 con = sqlite3.connect('users.db')
 user_input = "Mary"
 con.execute("INSERT INTO Users (user) VALUES (?)", (user_input,))
+con.commit()
+con.close()
 
 """
 The above code is vulnerable to SQL injection because user_input is
