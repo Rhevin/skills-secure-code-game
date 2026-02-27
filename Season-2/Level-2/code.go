@@ -12,6 +12,7 @@
 package main
 
 import (
+	"crypto/subtle"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -69,7 +70,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if password == storedPassword {
+		if subtle.ConstantTimeCompare([]byte(password), []byte(storedPassword)) == 1 {
 			log.Printf("Successful login request")
 			w.WriteHeader(http.StatusOK)
 		} else {
