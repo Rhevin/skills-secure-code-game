@@ -89,19 +89,17 @@ class DB_CRUD_ops(object):
             cur = db_con.cursor()
 
             res = "[METHOD EXECUTED] get_stock_info\n"
-            query = "SELECT * FROM stocks WHERE symbol = '{0}'".format(stock_symbol)
-            res += "[QUERY] " + query + "\n"
 
             # a block list (aka restricted characters) that should not exist in user-supplied input
             restricted_chars = ";%&^!#-"
             # checks if input contains characters from the block list
-            has_restricted_char = any([char in query for char in restricted_chars])
-            # checks if input contains a wrong number of single quotes against SQL injection
-            correct_number_of_single_quotes = query.count("'") == 2
+            has_restricted_char = any([char in stock_symbol for char in restricted_chars])
+            # checks if input contains single quotes which could indicate SQL injection
+            has_injection_chars = "'" in stock_symbol
 
             # performs the checks for good cyber security and safe software against SQL injection
-            if has_restricted_char or not correct_number_of_single_quotes:
-                res += "CONFIRM THAT THE ABOVE QUERY IS NOT MALICIOUS TO EXECUTE"
+            if has_restricted_char or has_injection_chars:
+                res += "CONFIRM THAT THE INPUT IS NOT MALICIOUS TO EXECUTE"
             else:
                 # use parameterized query to prevent SQL injection
                 cur.execute("SELECT * FROM stocks WHERE symbol = ?", (stock_symbol,))
@@ -131,8 +129,6 @@ class DB_CRUD_ops(object):
             cur = db_con.cursor()
 
             res = "[METHOD EXECUTED] get_stock_price\n"
-            query = "SELECT price FROM stocks WHERE symbol = '" + stock_symbol + "'"
-            res += "[QUERY] " + query + "\n"
             # use parameterized query to prevent SQL injection
             cur.execute("SELECT price FROM stocks WHERE symbol = ?", (stock_symbol,))
             query_outcome = cur.fetchall()
@@ -161,9 +157,6 @@ class DB_CRUD_ops(object):
                 raise Exception("ERROR: stock price provided is not a float")
 
             res = "[METHOD EXECUTED] update_stock_price\n"
-            # UPDATE stocks SET price = 310.0 WHERE symbol = 'MSFT'
-            query = "UPDATE stocks SET price = '%d' WHERE symbol = '%s'" % (price, stock_symbol)
-            res += "[QUERY] " + query + "\n"
 
             # use parameterized query to prevent SQL injection
             cur.execute("UPDATE stocks SET price = ? WHERE symbol = ?", (price, stock_symbol))

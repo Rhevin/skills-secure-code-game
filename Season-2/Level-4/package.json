@@ -4,22 +4,22 @@
     "description": "",
     "main": "code.js",
     "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "dependencies": {
-      "body-parser": "^2.2.2",
-      "express": "^5.2.1",
-      "fs": "^0.0.1-security",
-      "libxmljs": "^1.0.9",
-      "multer": "^2.0.2",
-      "path": "^0.12.7"
+        "body-parser": "^2.2.2",
+        "express": "^5.2.1",
+        "fs": "^0.0.1-security",
+        "libxmljs2": "^0.37.0",
+        "multer": "^2.0.2",
+        "path": "^0.12.7"
     },
     "devDependencies": {
-      "chai": "^6.2.2",
-      "mocha": "^11.7.5",
-      "supertest": "^7.2.2"
+        "chai": "^6.2.2",
+        "mocha": "^11.3.0",
+        "supertest": "^7.2.2"
     }
-  }
+}
