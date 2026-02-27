@@ -4,10 +4,10 @@ import sqlite3
 
 # Vulnerable: this code will allow an attacker to insert the "DROP TABLE" SQL command into the query
 # and delete all users from the database.
-con = sqlite3.connect('example.db')
-user_input = "Mary'); DROP TABLE Users;--"
-sql_stmt = "INSERT INTO Users (user) VALUES ('" + user_input + "');"
-con.executescript(sql_stmt)
+# con = sqlite3.connect('example.db')
+# user_input = "Mary'); DROP TABLE Users;--"
+# sql_stmt = "INSERT INTO Users (user) VALUES ('" + user_input + "');"
+# con.executescript(sql_stmt)
 
 # Secure through Parameterized Statements
 con = sqlite3.connect('example.db')
