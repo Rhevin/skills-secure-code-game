@@ -22,11 +22,26 @@ class TaxPayer:
         self.tax_form_attachment = None
 
     def _safe_path(self, path):
-        base_dir = os.path.normpath(os.path.dirname(os.path.abspath(__file__)))
-        filepath = os.path.normpath(os.path.join(base_dir, path))
+        if not path:
+            return None
+
+        base_dir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
+
+        # Reject absolute paths outright
+        if os.path.isabs(path):
+            return None
+
+        # Normalize the user-supplied path and remove any leading separators
+        normalized_path = os.path.normpath(path).lstrip(os.sep)
+
+        # Build the full path and resolve it to a real path
+        filepath = os.path.realpath(os.path.join(base_dir, normalized_path))
+
+        # Ensure the final path is strictly within base_dir
         common = os.path.commonpath([base_dir, filepath])
         if common != base_dir or filepath == base_dir:
             return None
+
         return filepath
 
     # returns the path of an optional profile picture that users can set
