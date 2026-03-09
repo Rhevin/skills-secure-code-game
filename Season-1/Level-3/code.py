@@ -31,8 +31,12 @@ class TaxPayer:
         if os.path.isabs(path):
             return None
 
-        # Normalize the user-supplied path and remove any leading separators
-        normalized_path = os.path.normpath(path).lstrip(os.sep)
+        # Normalize the user-supplied path and strip any leading path separators
+        normalized_path = os.path.normpath(path)
+        seps = os.sep
+        if os.altsep:
+            seps += os.altsep
+        normalized_path = normalized_path.lstrip(seps)
 
         # Build the full path and resolve it to a real path
         filepath = os.path.realpath(os.path.join(base_dir, normalized_path))
@@ -44,37 +48,42 @@ class TaxPayer:
 
         return filepath
 
+    def _open_safe(self, path):
+        """Validates path against traversal attacks and opens the file safely."""
+        safe = self._safe_path(path)
+        if not safe:
+            return None, None
+
+        base_dir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
+        safe = os.path.realpath(safe)
+        if not safe.startswith(base_dir + os.sep):
+            return None, None
+
+        with open(safe, 'rb') as f:
+            data = bytearray(f.read())
+        return safe, data
+
     # returns the path of an optional profile picture that users can set
     def get_prof_picture(self, path=None):
         # setting a profile picture is optional
         if not path:
             pass
 
-        # defends against path traversal attacks
-        prof_picture_path = self._safe_path(path)
+        prof_picture_path, picture = self._open_safe(path)
         if not prof_picture_path:
             return None
-
-        with open(prof_picture_path, 'rb') as pic:
-            picture = bytearray(pic.read())
 
         # assume that image is returned on screen after this
         return prof_picture_path
 
     # returns the path of an attached tax form that every user should submit
     def get_tax_form_attachment(self, path=None):
-        tax_data = None
-
         if not path:
             raise Exception("Error: Tax form is required for all users")
 
-        # defends against path traversal attacks
-        safe = self._safe_path(path)
+        safe, tax_data = self._open_safe(path)
         if not safe:
             return None
-
-        with open(safe, 'rb') as form:
-            tax_data = bytearray(form.read())
 
         # assume that tax data is returned on screen after this
         return safe
