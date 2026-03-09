@@ -19,11 +19,6 @@ import (
 	"regexp"
 )
 
-var reqBody struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 func isValidEmail(email string) bool {
 	// The provided regular expression pattern for email validation by OWASP
 	// https://owasp.org/www-community/OWASP_Validation_Regex_Repository
@@ -47,6 +42,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "POST" {
 
+		var reqBody struct {
+			Email    string `json:"email"`
+			Password string `json:"password"`
+		}
+
 		decode := json.NewDecoder(r.Body)
 		decode.DisallowUnknownFields()
 
@@ -66,11 +66,10 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 		storedPassword, ok := testFakeMockUsers[email]
 		if !ok {
-			http.Error(w, "Invalid Email or Password", http.StatusUnauthorized)
-			return
+			storedPassword = "dummyPasswordForTimingEquality"
 		}
 
-		if subtle.ConstantTimeCompare([]byte(password), []byte(storedPassword)) == 1 {
+		if subtle.ConstantTimeCompare([]byte(password), []byte(storedPassword)) == 1 && ok {
 			log.Printf("Successful login request")
 			w.WriteHeader(http.StatusOK)
 		} else {

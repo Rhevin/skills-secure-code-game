@@ -60,7 +60,7 @@ int create_user_account(bool isAdmin, const char *username) {
         return INVALID_USER_ID;
     }
     ua->isAdmin = isAdmin;
-    ua->userid = userid_next++;
+    ua->userid = userid_next;
     strcpy(ua->username, username);
     memset(&ua->setting, 0, sizeof ua->setting);
     accounts[userid_next] = ua;
@@ -71,6 +71,8 @@ int create_user_account(bool isAdmin, const char *username) {
 // A setting is some arbitrary string associated with an index as a key
 bool update_setting(int user_id, const char *index, const char *value) {
     if (user_id < 0 || user_id >= MAX_USERS)
+        return false;
+    if (accounts[user_id] == NULL)
         return false;
 
     char *endptr;
@@ -91,16 +93,23 @@ bool is_admin(int user_id) {
     if (user_id < 0 || user_id >= MAX_USERS) {
         fprintf(stderr, "invalid user id");
         return false;
-    }    
+    }
+    if (accounts[user_id] == NULL) {
+        fprintf(stderr, "invalid user id");
+        return false;
+    }
     return accounts[user_id]->isAdmin;
 }
 
 // Returns the username of the specified user
 const char* username(int user_id) {
-    // Returns an error for invalid user ids
     if (user_id < 0 || user_id >= MAX_USERS) {
         fprintf(stderr, "invalid user id");
         return NULL;
-    }    
+    }
+    if (accounts[user_id] == NULL) {
+        fprintf(stderr, "invalid user id");
+        return NULL;
+    }
     return accounts[user_id]->username;
 }

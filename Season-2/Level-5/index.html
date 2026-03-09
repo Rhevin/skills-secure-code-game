@@ -66,7 +66,9 @@
         var inputCount = 0;
 
         function logToConsole(msg) {
-            consoleDiv.innerHTML += msg + "<br>";
+            var textNode = document.createTextNode(String(msg));
+            consoleDiv.appendChild(textNode);
+            consoleDiv.appendChild(document.createElement("br"));
         }
 
         function getInput(prompt) {
@@ -103,6 +105,26 @@
             });
         }
 
+        function safeEvaluate(input) {
+            var hashMatch = input.match(/^CryptoAPI\.sha1\.hash\((['"])(.*?)\1\)$/);
+            if (hashMatch) {
+                return CryptoAPI.sha1.hash(hashMatch[2]);
+            }
+            if (input === "CryptoAPI.sha1.hash") {
+                return "function(s) { ... }";
+            }
+            if (input === "CryptoAPI.sha1.name") {
+                return CryptoAPI.sha1.name;
+            }
+            if (input === "CryptoAPI.sha1.size") {
+                return CryptoAPI.sha1.size;
+            }
+            if (input === "CryptoAPI.sha1.block") {
+                return CryptoAPI.sha1.block;
+            }
+            throw "Unknown command. Allowed: CryptoAPI.sha1.hash('string'), CryptoAPI.sha1.name, CryptoAPI.sha1.size, CryptoAPI.sha1.block";
+        }
+
         async function runConsole() {
             while (true) {
                 var input = await getInput("> ");
@@ -110,7 +132,7 @@
                     break;
                 }
                 try {
-                    var result = eval(input);
+                    var result = safeEvaluate(input);
                     logToConsole(result);
                 } catch (error) {
                     logToConsole(error);
