@@ -21,47 +21,32 @@ class TaxPayer:
         self.prof_picture = None
         self.tax_form_attachment = None
 
-    def _safe_path(self, path):
-        if not path:
-            return None
-
-        base_dir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
-
-        # Reject absolute paths outright
-        if os.path.isabs(path):
-            return None
-
-        # Normalize the user-supplied path and strip any leading path separators
-        normalized_path = os.path.normpath(path)
-        seps = os.sep
-        if os.altsep:
-            seps += os.altsep
-        normalized_path = normalized_path.lstrip(seps)
-
-        # Build the full path and resolve it to a real path
-        filepath = os.path.realpath(os.path.join(base_dir, normalized_path))
-
-        # Ensure the final path is strictly within base_dir
-        common = os.path.commonpath([base_dir, filepath])
-        if common != base_dir or filepath == base_dir:
-            return None
-
-        return filepath
-
     def _open_safe(self, path):
         """Validates path against traversal attacks and opens the file safely."""
-        safe = self._safe_path(path)
-        if not safe:
+        if not path:
             return None, None
 
         base_dir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)))
-        safe = os.path.realpath(safe)
-        if not safe.startswith(base_dir + os.sep):
+
+        if os.path.isabs(path):
+            fullpath = os.path.realpath(path)
+        else:
+            normalized = os.path.normpath(path)
+            seps = os.sep
+            if os.altsep:
+                seps += os.altsep
+            normalized = normalized.lstrip(seps)
+            fullpath = os.path.realpath(os.path.join(base_dir, normalized))
+
+        if not fullpath.startswith(base_dir + os.sep):
             return None, None
 
-        with open(safe, 'rb') as f:
+        if not os.path.isfile(fullpath):
+            return None, None
+
+        with open(fullpath, 'rb') as f:
             data = bytearray(f.read())
-        return safe, data
+        return fullpath, data
 
     # returns the path of an optional profile picture that users can set
     def get_prof_picture(self, path=None):
