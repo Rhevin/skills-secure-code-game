@@ -32,7 +32,17 @@ app.post("/ufo", (req, res) => {
     console.log("Received JSON data:", req.body);
     res.status(200).json({ ufo: "Received JSON data from an unknown planet." });
   } else if (contentType === "application/xml") {
+    if (typeof req.body !== "string") {
+      res.status(400).send("Invalid XML");
+      return;
+    }
+
     try {
+      if (req.body.includes("<!DOCTYPE") || req.body.includes("<!ENTITY")) {
+        res.status(400).send("Invalid XML");
+        return;
+      }
+
       const xmlDoc = libxmljs.parseXml(req.body, {
         replaceEntities: false,
         recover: false,
@@ -52,18 +62,10 @@ app.post("/ufo", (req, res) => {
           }
         });
 
-      // Secret feature to allow an "admin" to execute commands
-      if (
-        xmlDoc.toString().includes('SYSTEM "') &&
-        xmlDoc.toString().includes(".admin")
-      ) {
-        res.status(400).send("Invalid XML");
-      } else {
-        res
-          .status(200)
-          .set("Content-Type", "text/plain")
-          .send(extractedContent.join(" "));
-      }
+      res
+        .status(200)
+        .set("Content-Type", "text/plain")
+        .send(extractedContent.join(" "));
     } catch (error) {
       console.error("XML parsing or validation error");
       res.status(400).send("Invalid XML");
