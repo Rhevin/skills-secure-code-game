@@ -1,4 +1,4 @@
-pyOpenSSL>=23.0.0
+pyOpenSSL>=26.1.0
 bcrypt>=4.0.0
 flask>=3.0.0
 flask-testing>=0.8.1
